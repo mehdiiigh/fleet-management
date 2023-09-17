@@ -25,7 +25,7 @@ mvn spring-boot:run
 
 login and get bearer token in response header
 ```shell
-curl -s -i -H "Content-Type: application/json" -X POST -d '{ "username": "john.doe", "password": "test1234"}' http://localhost:8080/fleet-management/login | grep Authorization
+curl -s -i -H "Content-Type: application/json" -X POST -d '{ "username": "admin", "password": "test1234"}' http://localhost:8080/fleet-management/login | grep Authorization
 # result: Authorization: Bearer ***
 ```
 * /api/company 
