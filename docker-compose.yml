@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  mysql:
+    container_name: "fleet-management-mysql"
+    image: "mysql:latest"
+    environment:
+      MYSQL_ROOT_PASSWORD: Aa@123456
+      MYSQL_DATABASE: Fleet_Management_DB
+    networks:
+      - fleet-management-network
+    ports:
+      - "3306:3306"
+
+networks:
+  fleet-management-network:
+    driver: bridge
