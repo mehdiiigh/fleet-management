@@ -1,27 +1,29 @@
 package com.triply.fleetmanagement.service.impl
 
+
 import com.triply.fleetmanagement.domain.Company
 import com.triply.fleetmanagement.domain.Employee
 import com.triply.fleetmanagement.domain.Vehicle
 import com.triply.fleetmanagement.domain.VehicleUsage
 import com.triply.fleetmanagement.repository.CompanyRepository
 import com.triply.fleetmanagement.repository.EmployeeRepository
+import com.triply.fleetmanagement.repository.VehicleRepository
 import com.triply.fleetmanagement.repository.VehicleUsageRepository
 import com.triply.fleetmanagement.service.dto.EmissionDetailDto
 import com.triply.fleetmanagement.service.dto.EmissionDto
 import com.triply.fleetmanagement.service.dto.SuggestionDetailDto
 import com.triply.fleetmanagement.service.dto.SuggestionDto
 import org.junit.jupiter.api.Assertions.*
-
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
-import org.springframework.web.server.ResponseStatusException
 import org.springframework.http.HttpStatus
+import org.springframework.web.server.ResponseStatusException
 import java.util.*
+import kotlin.random.Random
 
 class EmissionServiceImplTest {
 
@@ -32,11 +34,13 @@ class EmissionServiceImplTest {
     private lateinit var employeeRepository: EmployeeRepository
     @Mock
     private lateinit var vehicleUsageRepository: VehicleUsageRepository
+    @Mock
+    private lateinit var vehicleRepository: VehicleRepository
 
     @BeforeEach
     fun setUp() {
         MockitoAnnotations.openMocks(this)
-        emissionService = EmissionServiceImpl(companyRepository, employeeRepository, vehicleUsageRepository)
+        emissionService = EmissionServiceImpl(companyRepository, employeeRepository, vehicleUsageRepository, vehicleRepository)
     }
 
     @Test
@@ -226,5 +230,21 @@ class EmissionServiceImplTest {
         assertThrows<ResponseStatusException> {
             emissionService.suggestionEmissionsByCompany(companyId)
         }
+    }
+
+    @Test
+    fun test5TopVehicles(){
+        val company = Company(id = 1, name = "triply")
+        companyRepository.save(company)
+        val vehicles = mutableListOf<Vehicle>()
+        vehicles.add(Vehicle(type= "vehicleType1", emissionFactors = Random.nextDouble(1.0, 5.0), company = company ))
+        vehicles.add(Vehicle(type= "vehicleType2", emissionFactors = Random.nextDouble(1.0, 5.0), company = company ))
+        vehicles.add(Vehicle(type= "vehicleType3", emissionFactors = Random.nextDouble(1.0, 5.0), company = company ))
+        vehicles.add(Vehicle(type= "vehicleType4", emissionFactors = Random.nextDouble(1.0, 5.0), company = company ))
+        vehicles.add(Vehicle(type= "vehicleType5", emissionFactors = Random.nextDouble(1.0, 5.0), company = company ))
+        vehicles.add(Vehicle(type= "vehicleType6", emissionFactors = Random.nextDouble(1.0, 5.0), company = company ))
+        `when`(vehicleRepository.findAll()).thenReturn(vehicles)
+        val result = emissionService.calculate5TopVehicles()
+        assertEquals(5, result.size)
     }
 }

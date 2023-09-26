@@ -1,8 +1,10 @@
 package com.triply.fleetmanagement.service.impl
 
+import com.triply.fleetmanagement.domain.Vehicle
 import com.triply.fleetmanagement.domain.VehicleUsage
 import com.triply.fleetmanagement.repository.CompanyRepository
 import com.triply.fleetmanagement.repository.EmployeeRepository
+import com.triply.fleetmanagement.repository.VehicleRepository
 import com.triply.fleetmanagement.repository.VehicleUsageRepository
 import com.triply.fleetmanagement.service.EmissionService
 import com.triply.fleetmanagement.service.dto.EmissionDetailDto
@@ -17,7 +19,8 @@ import org.springframework.web.server.ResponseStatusException
 class EmissionServiceImpl(
     val companyRepository: CompanyRepository,
     val employeeRepository: EmployeeRepository,
-    val vehicleUsageRepository: VehicleUsageRepository
+    val vehicleUsageRepository: VehicleUsageRepository,
+    val vehicleRepository : VehicleRepository
 ) : EmissionService {
 
     private val electricType = "Electric"
@@ -95,4 +98,29 @@ class EmissionServiceImpl(
         }
         return suggestionDto
     }
+
+
+    override fun calculate5TopVehicles(): List<Vehicle> {
+         var defaultWeaklyMillage = 500.0
+         val map = mutableMapOf<Double, Vehicle>()
+
+         vehicleRepository.findAll().forEach {
+             var emission = calculateEmissions(it.emissionFactors, defaultWeaklyMillage)
+             map[emission] = it
+         }
+
+         map.toList()
+             .sortedBy { (key, value) -> key }
+             .toMap()
+
+         val result = mutableListOf<Vehicle>()
+         var cout = 0
+         val itr = map.keys.iterator()
+         while (itr.hasNext() && cout < 5) {
+             cout++
+             result.add(map[itr.next()]!!)
+         }
+
+         return result.toList()
+     }
 }
